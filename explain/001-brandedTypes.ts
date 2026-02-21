@@ -8,15 +8,17 @@
 /* Martin: check previos knowledge here  */
 
 /*  RESTAURANT DOMAIN   */
-const calculatePrice = (price: number, quantity: number): number => {
-	return price * quantity
+
+type Brand<K, T> = K & { __brand: T }
+
+type USD = Brand<number, "USD">
+type Quantity = Brand<number, "Quantity">
+type EURO = Brand<number, "EURO">
+const calculatePrice = (price: EURO, quantity: Quantity): EURO => {
+	return price * quantity as EURO
 }
 // CAREFUL ! This function is very flexible but also very error-prone. It accepts any numbers !
 
-/*  manual tests   */
-const total = calculatePrice(10, 3) // user inputs price and quantity
-
-console.log(`Total cost: $${total}`)
 /*
 /*
 /*
@@ -33,26 +35,44 @@ console.log(`Total cost: $${total}`)
 
 // TODO:  1. create makePrice and makeQuantity functions that validate the inputs and return branded types instead of raw numbers.
 
+const makePrice = (price: number): EURO => {
+	if (price < 0) throw new Error("Price cannot be negative")
+	if (price > 1000)
+		throw new Error("Price seems suspiciously high for a pizza!")
+	return price as EURO
+}
+
+const makeQuantity = (quantity: number): Quantity => {
+	if (quantity <= 0) throw new Error("Quantity cannot be zero or negative")
+	if (!Number.isInteger(quantity))
+		throw new Error("Quantity must be a whole number")
+	if (quantity > 50) throw new Error("Too many!")
+	return quantity as Quantity
+}
+
 // TODO:  2. update calculatePrice to accept only resutls from makePrice and makeQuantity, ensuring that invalid inputs are caught at compile time rather than runtime.
 
 // TODO:  3. apply Branded Types to calculatePrice to prevent accidental misuse of the function with raw numbers, enhancing type safety in the restaurant domain.
 
+
+const pizzaPrice = makePrice(10)
+const pizzaCount = makeQuantity(3)
+
+const total = calculatePrice(pizzaPrice, pizzaCount)
+
+
 // TODO: 4. add try-catch blocks around the calls to makePrice and makeQuantity to handle potential validation errors gracefully, ensuring that the application can respond appropriately to invalid inputs without crashing.
 
 /*
-/*
-/*
-/*
-/*
-/*
-/*
-/*
-/*
-/*
-/*
-/*
-/*
-/*
+/*  manual tests   */
+try {
+	const total = calculatePrice(pizzaPrice, pizzaCount)
+	console.log(`Total cost: $${total}`)
+} catch (error) {
+	console.error("An error occured:",
+		error instanceof Error ? error.message : error,
+	)
+}
 /*
 /*
 /* TYPES   */
@@ -97,11 +117,21 @@ console.log(`Total cost: $${total}`)
 // 	const total = calculatePrice(pizzaPrice, pizzaCount)
 // 	console.log(`Total is $${total}`) // Total is $30
 
-// try {
+try {
 
-// 	const total = calculatePrice(456 as USD, 4856 as Quantity)
+	const pizzaPrice = makePrice(10 as EURO) 
+	const pizzaCount = makeQuantity(1000 as Quantity)
 
-// 	console.log(total)
-// } catch (e: unknown) {
-// 	console.error(e instanceof Error ? e.message : "An unknown error occurred")
-// }
+try {
+	const total = calculatePrice(pizzaPrice, pizzaCount)
+	console.log(`Total cost: $${total}`)
+} catch (error) {
+	console.error("An error occured:",
+		error instanceof Error ? error.message : error,
+	)
+}
+
+console.log(total)
+	} catch (e: unknown) {
+		console.error(e instanceof Error ? e.message : "An unknown error occurred")
+}
