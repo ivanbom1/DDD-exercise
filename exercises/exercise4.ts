@@ -71,20 +71,23 @@ export function exercise4_BusinessRuleViolation() {
 	// states, and mutation should go through guarded methods (seatGuests).
 
 
-	const table = Table.create(5, 4)
-	table.seatGuests(7)
+		const table = Table.create(5, 4)
+	try {
+		table.seatGuests(7)
+	} catch (error) {
+		logError(4, "Table overcapacity - business rule violated", {
+			table,
+			issue: (error as Error).message,
+		})
+	}
 
-	logError(4, "Table overcapacity - business rule violated", {
-		table,
-		issue: "currentGuests should never exceed capacity!",
-	})
-
-	// Another violation - negative guests
 	const emptyTable = Table.create(3, 6)
-	table.seatGuests(-2)
-
-	logError(4, "Negative guest count - impossible in real world", {
-		table: emptyTable,
-		issue: "Guests cannot be negative!",
-	})
+	try {
+		emptyTable.seatGuests(-2)
+	} catch (error) {
+		logError(4, "Negative guest count - impossible in real world", {
+			table: emptyTable,
+			issue: (error as Error).message,
+		})
+	}
 }

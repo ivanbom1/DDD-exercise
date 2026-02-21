@@ -56,7 +56,7 @@ export function exercise6_TemporalLogic() {
 			public readonly closes: Hour,
 		) { }
 
-		static create(opens: Hour, closes: Hour): OperatingHours {
+		static create(opens: number, closes: number): OperatingHours {
 			return new OperatingHours(createHour(opens), createHour(closes))
 		}
 
@@ -95,13 +95,14 @@ export function exercise6_TemporalLogic() {
 	})
 
 	// Also accepts invalid hours
-	const brokenRestaurant: Restaurant = {
-		name: "Broken Cafe",
-		hours: OperatingHours.create(createHour(25), createHour(-5))
-	}
-
-	logError(6, "Invalid hours accepted without validation", {
-		restaurant: brokenRestaurant,
-		issue: "Hours should be 0-23 only!",
-	})
+	try {
+    const brokenRestaurant: Restaurant = {
+        name: "Broken Cafe",
+        hours: OperatingHours.create(25, -5)
+    }
+		} catch (error) {
+    logError(6, "Invalid hours accepted without validation", {
+        issue: (error as Error).message,
+    })
+}
 }

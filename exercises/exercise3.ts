@@ -64,9 +64,9 @@ export function exercise3_StringConfusion() {
 
 	// TypeScript sees all strings as the same!
 	const customer: Customer = {
-		name: "john@example.com", // Silent bug! Email in name field
-		email: "John Doe", // Silent bug! Name in email field
-		phone: "555-PIZZA", // Silent bug! Letters in phone field
+		name: "john@example.com" as CustomerName, // Silent bug! Email in name field
+		email: "John Doe" as Email, // Silent bug! Name in email field
+		phone: "555-PIZZA" as Phone, // Silent bug! Letters in phone field
 	}
 
 	// TODO: Create separate branded types (Email, Phone, CustomerName) so
@@ -79,9 +79,9 @@ export function exercise3_StringConfusion() {
 
 	// Even worse - empty strings pass validation
 	const emptyCustomer: Customer = {
-		name: createCustomerName(""),
-		email: createEmail(""),
-		phone: createPhone(""),
+		name: "" as CustomerName,
+		email: "" as Email,
+		phone: "" as Phone,
 	}
 
 	logError(3, "Empty strings accepted everywhere", {
