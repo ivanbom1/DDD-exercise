@@ -22,18 +22,28 @@ import { logError } from "./logger.js"
 // TypeScript will refuse to assign a plain number where a Price is expected,
 // so every price in the system is guaranteed valid by construction.
 // ============================================================================
+type Brand<K, T> = K & { __brand: T }
+type Price = Brand<number, "USD">
+
 
 export function exercise1_PrimitivePrice() {
 	// Without domain types, price is just a number
 	type MenuItem = {
 		name: string
-		price: number // Could be negative! Could be a huge number!
+		price: Price // Could be negative! Could be a huge number!
 		quantity: number
 	}
 
+	const createPrice = (price: number): Price => {
+	if (price < 0) throw new Error("Price cannot be negative")
+	if (price > 10000)
+		throw new Error("Price exceeds maximum")
+	return price as Price
+}
+
 	const orderItem: MenuItem = {
 		name: "Burger",
-		price: -50, // Silent bug! Negative price
+		price: createPrice(-50), // Silent bug! Negative price
 		quantity: 1,
 	}
 
@@ -50,3 +60,5 @@ export function exercise1_PrimitivePrice() {
 		issue: "Price should never be negative!",
 	})
 }
+
+
