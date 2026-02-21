@@ -43,21 +43,44 @@ import { logError } from "./logger.js"
 // ============================================================================
 
 export function exercise6_TemporalLogic() {
+	type Hour = number & { readonly __brand: unique symbol }
+	function createHour(h: number): Hour {
+		if (!Number.isInteger(h) || h < 0 || h > 23)
+			throw new Error("Hour must be 0-23")
+		return h as Hour
+	}
+
+	class OperatingHours {
+		private constructor(
+			public readonly opens: Hour,
+			public readonly closes: Hour,
+		) { }
+
+		static create(opens: Hour, closes: Hour): OperatingHours {
+			return new OperatingHours(createHour(opens), createHour(closes))
+		}
+
+		isOpenAt(hour: Hour): boolean {
+
+			if (this.opens <= this.closes) {
+				return hour >= this.opens && hour < this.closes
+			}
+			return hour >= this.opens || hour < this.closes
+		}
+	}
 	type Restaurant = {
 		name: string
-		opensAt: number // Hours (0-23)
-		closesAt: number // Hours (0-23)
+		hours: OperatingHours
 	}
 
 	const restaurant: Restaurant = {
 		name: "Joe's Diner",
-		opensAt: 22, // Opens at 10 PM
-		closesAt: 6, // Closes at 6 AM - crosses midnight!
+		hours: OperatingHours.create(createHour(22), createHour(6))
 	}
 
 	// Simple check fails for overnight restaurants
 	const isOpen = (hour: number): boolean => {
-		return hour >= restaurant.opensAt && hour <= restaurant.closesAt
+		return restaurant.hours.isOpenAt(createHour(hour))
 	}
 
 	// TODO: Replace the raw numbers with an OperatingHours Value Object.
@@ -74,8 +97,7 @@ export function exercise6_TemporalLogic() {
 	// Also accepts invalid hours
 	const brokenRestaurant: Restaurant = {
 		name: "Broken Cafe",
-		opensAt: 25, // Silent bug! Invalid hour
-		closesAt: -5, // Silent bug! Invalid hour
+		hours: OperatingHours.create(createHour(25), createHour(-5))
 	}
 
 	logError(6, "Invalid hours accepted without validation", {
