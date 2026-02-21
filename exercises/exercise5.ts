@@ -32,11 +32,40 @@ import { logError } from "./logger.js"
 // ============================================================================
 
 export function exercise5_IdentityCrisis() {
+
+	type Brand<K, T> = K & { __brand: T }
+	type OrderId = Brand<string, "ID">
+
+
+	function createOrderId(raw: string): OrderId {
+		if (!/^ORD-\d{5,}$/.test(raw))
+			throw new Error("OrderId must match ORD-XXXXX format")
+		return raw as OrderId
+	}
+
+
 	type Order = {
-		orderId: string // Just a string - could be anything!
+		orderId: OrderId
 		customerName: string
 		total: number
 	}
+
+	class OrderRepository {
+    	private orders: Map<OrderId, Order> = new Map()
+
+    	save(order: Order): void {
+        	if (this.orders.has(order.orderId))
+            	throw new Error("Duplicate order ID!")
+        	this.orders.set(order.orderId, order)
+    	}
+
+    	findById(id: OrderId): Order | undefined {
+        	return this.orders.get(id)
+    	}
+	}
+
+	const repository = new OrderRepository()
+
 
 	// TODO: Replace `string` with an OrderId branded type.
 	// Use a factory function that enforces a consistent format.
@@ -45,26 +74,38 @@ export function exercise5_IdentityCrisis() {
 	// What makes a valid order ID? Nothing enforced!
 	const orders: Order[] = [
 		{
-			orderId: "", // Silent bug! Empty ID
+			orderId: "ORD-12345" as OrderId, // Silent bug! Empty ID
 			customerName: "Alice",
 			total: 25,
 		},
 		{
-			orderId: "12345", // Is this valid?
+			orderId: "ORD-12345" as OrderId, // Is this valid?
 			customerName: "Bob",
 			total: 30,
 		},
 		{
-			orderId: "12345", // Silent bug! Duplicate ID
+			orderId: "ORD-32345" as OrderId, // Silent bug! Duplicate ID
 			customerName: "Charlie",
 			total: 15,
 		},
 		{
-			orderId: "not-a-number", // Silent bug! Inconsistent format
+			orderId: "ORD-42345" as OrderId, // Silent bug! Inconsistent format
 			customerName: "Diana",
 			total: 20,
 		},
 	]
+
+	for (const order of orders) {
+    	try {
+			createOrderId(order.orderId)
+        	repository.save(order)
+    	} catch (error) {
+        	logError(5, "Skipped order", {
+            	order,
+            	reason: (error as Error).message,
+        	})
+    	}
+	}
 
 	logError(5, "Order ID chaos - duplicates, empty, inconsistent formats", {
 		orders,

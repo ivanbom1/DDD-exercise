@@ -64,9 +64,9 @@ export function exercise3_StringConfusion() {
 
 	// TypeScript sees all strings as the same!
 	const customer: Customer = {
-		name: createCustomerName("john@example.com"), // Silent bug! Email in name field
-		email: createEmail("John Doe"), // Silent bug! Name in email field
-		phone: createPhone("555-PIZZA"), // Silent bug! Letters in phone field
+		name: "john@example.com", // Silent bug! Email in name field
+		email: "John Doe", // Silent bug! Name in email field
+		phone: "555-PIZZA", // Silent bug! Letters in phone field
 	}
 
 	// TODO: Create separate branded types (Email, Phone, CustomerName) so
